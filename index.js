@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const MongoClient = require('mongodb').MongoClient;
 
 const app = express();
 
@@ -10,8 +11,8 @@ app.use(bodyParser.json());
 
 const dbPassword = "sadaf123";
 
-const MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://organicUser:sadaf123@cluster0.66naq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+
+const uri = "mongodb+srv://organicUser:sadaf123@cluster0.66naq.mongodb.net/organicdb?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.get('/',(req,res) => {
@@ -21,8 +22,9 @@ app.get('/',(req,res) => {
 
 
 client.connect(err => {
-  const collection = client.db("test").collection("devices");
+  const collection = client.db("organicdb").collection("products");
   // perform actions on the collection object
+  console.log('database connected')
   client.close();
 });
 
