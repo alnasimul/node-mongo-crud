@@ -14,16 +14,23 @@
         <h1>I am learning Node</h1>
         <form action="/addProduct" method="post">
             <input type="text" class="form-control" placeholder="Name" name="name">
+            <br>
             <input type="text" class="form-control" placeholder="Price" name="price">
+            <br>
             <input type="text" class="form-control" placeholder="Quantity" name="quantity">
+            <br>
             <button type="submit" class="btn btn-primary">Add Product</button>
         </form>
         <div id="products">
 
         </div>
+
+        <div id="update">
+
+        </div>
     </div>
     <script>
-        const loadProducts = () => {
+        const loadAllProducts = () => {
             fetch('products')
                 .then(res => res.json())
                 .then(products => {
@@ -34,14 +41,65 @@
                     products.forEach(pd => {
                         const p = document.createElement('p');
 
-                        p.innerHTML = ` <strong> ${pd.name} </strong> -- Price: ${pd.price} -- Quantity: ${pd.quantity}`;
+                        p.innerHTML = ` <strong> ${pd.name} </strong> -- Price: ${pd.price} -- Quantity: ${pd.quantity}
+                        <button class="btn btn-success" onclick="loadProduct('${pd._id}')"> Update </button>
+                        <button class="btn btn-primary" onclick="deleteProduct('${pd._id}')">Delete</button>`;
 
                         container.appendChild(p);
                     })
                 })
         }
 
-        loadProducts();
+        loadAllProducts();
+
+        const loadProduct = (id) => {
+            fetch(`product/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                 const update = document.getElementById('update')
+
+                 update.innerHTML = `
+                 <h3> Update: ${data._id} </h3>
+                    <input type="text" class="form-control" value="${data.name}" placeholder="Name" name="name" id="name">
+                    <br>
+                    <input type="text" class="form-control" value="${data.price}" placeholder="Price" name="price" id="price">
+                    <br>
+                    <input type="text" class="form-control" value="${data.quantity}" placeholder="Quantity" name="quantity" id="quantity">
+                    <br>
+                    <button type="submit" onclick="updateProduct('${data._id}')" class="btn btn-warning">Update</button>
+                 `
+            })
+        }
+
+        const updateProduct = (id) => {
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const quantity = document.getElementById('quantity').value;
+
+            const product = {id, name, price, quantity}
+
+            fetch(`/update/${id}`,{
+                method: 'PATCH',
+                headers: {'Content-Type' : 'application/json'},
+                body: JSON.stringify(product)
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('updated')
+            })
+
+            console.log('updating');
+        }
+
+        const deleteProduct = (id) => {
+           fetch(`/delete/${id}`,{
+               method:"DELETE"
+           })
+           .then(res => res.json())
+           .then(data => {
+               console.log('deleted successfully')
+           })
+        }
     </script>
 </body>
 

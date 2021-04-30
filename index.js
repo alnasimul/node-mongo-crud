@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
+const ObjectId = require('mongodb').ObjectID;
 
 const app = express();
 
@@ -27,10 +28,17 @@ client.connect(err => {
   const productCollection = client.db("organicdb").collection("products");
 
   app.get('/products',(req,res) => {
-    productCollection.find({}).limit(2)
+    productCollection.find({}).limit(4)
     .toArray((err,documents) => {
       res.send(documents);
     })
+  })
+
+  app.get('/product/:id', (req,res) => {
+         productCollection.find({_id: ObjectId(req.params.id)})
+         .toArray((err,documents) => {
+          res.send(documents[0])
+        })
   })
   app.post('/addProduct', (req,res) =>{
       const product = req.body;
@@ -41,6 +49,21 @@ client.connect(err => {
         res.send('success');
       })
       console.log(product)
+  })
+  app.patch('/update/:id',(req,res) => {
+      productCollection.updateOne({_id : ObjectId(req.params.id)},{
+        $set : {name: req.body.name, price : req.body.price, quantity: req.body.quantity }
+      })
+      .then(result => {
+          console.log(result)
+        })
+     
+  })
+  app.delete('/delete/:id',(req,res) => {
+    productCollection.deleteOne({_id : ObjectId(req.params.id)})
+    .then(result =>{
+      console.log(result);
+    })
   })
  
   console.log('database connected')
